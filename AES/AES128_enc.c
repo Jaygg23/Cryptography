@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-//#define xtimes(input) (((input)<<1)^(((input)>>7)*0x1b)) // ÇÔ¼ö
-#define xtimes(f) ((((f) >> 7 & 0x01) == 1) ? ((f) << 1) ^ 0x1b : (f) << 1) // ºÐ±â¹®
+//#define xtimes(input) (((input)<<1)^(((input)>>7)*0x1b)) // í•¨ìˆ˜
+#define xtimes(f) ((((f) >> 7 & 0x01) == 1) ? ((f) << 1) ^ 0x1b : (f) << 1) // ë¶„ê¸°ë¬¸
 
 typedef uint8_t AES_STATE_t[16]; // 128-bit block
 typedef uint8_t AES128_KEY_t[16]; // 128-bit masterkey
@@ -177,7 +177,7 @@ void AES128_enc(AES_STATE_t C, AES_STATE_t P, AES128_KEY_t K128)
 
     AddRoundKey(C, RoundKey[0]);
 
-    //1~9 ¶ó¿îµå
+    //1~9 ë¼ìš´ë“œ
     for (int cnt_i = 0; cnt_i < 9; cnt_i++)
     {
         SubBytes(C);
@@ -186,7 +186,7 @@ void AES128_enc(AES_STATE_t C, AES_STATE_t P, AES128_KEY_t K128)
         AddRoundKey(C, RoundKey[cnt_i + 1]);
     }
 
-    //¸¶Áö¸· 10 ¶ó¿îµå
+    //ë§ˆì§€ë§‰ 10 ë¼ìš´ë“œ
     SubBytes(C);
     ShiftRows(C);
     AddRoundKey(C, RoundKey[10]);
