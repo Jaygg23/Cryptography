@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "crypto_api.h"
 
-// ¿ÜºÎ ÇÔ¼ö ¼±¾ğ (aes.c, sha512.c¿¡¼­ Á¦°ø)
+// ì™¸ë¶€ í•¨ìˆ˜ ì„ ì–¸ (aes.c, sha512.cì—ì„œ ì œê³µ)
 int test_aes(void);
 int test_sha512(void);
 
@@ -11,20 +11,20 @@ int main(void) {
     printf("       CRYPTO FUNCTION TEST START      \n");
     printf("=======================================\n\n");
 
-    printf("[1] AES CTR Mode Test ½ÃÀÛ \n");
+    printf("[1] AES CTR Mode Test ì‹œì‘ \n");
     if (test_aes() == 0)
-        printf("[AES] ¸ğµç AES CTR Mode Å×½ºÆ® º¤ÅÍ Åë°ú!\n\n");
+        printf("[AES] ëª¨ë“  AES CTR Mode í…ŒìŠ¤íŠ¸ ë²¡í„° í†µê³¼!\n\n");
     else
-        printf("[AES] AES CTR Mode Å×½ºÆ® ½ÇÆĞ!\n\n");
+        printf("[AES] AES CTR Mode í…ŒìŠ¤íŠ¸ ì‹¤íŒ¨!\n\n");
 
-    printf("[2] SHA-512 Test ½ÃÀÛ...\n");
+    printf("[2] SHA-512 Test ì‹œì‘...\n");
     if (test_sha512() == 0)
-        printf("[SHA512] ¸ğµç SHA-512 Å×½ºÆ® º¤ÅÍ Åë°ú!\n\n");
+        printf("[SHA512] ëª¨ë“  SHA-512 í…ŒìŠ¤íŠ¸ ë²¡í„° í†µê³¼!\n\n");
     else
-        printf("[SHA512] SHA-512 Å×½ºÆ® ½ÇÆĞ!\n\n");
+        printf("[SHA512] SHA-512 í…ŒìŠ¤íŠ¸ ì‹¤íŒ¨!\n\n");
 
     printf("=======================================\n");
-    printf("        ¸ğµç CRYPTO TEST ¿Ï·á!         \n");
+    printf("        ëª¨ë“  CRYPTO TEST ì™„ë£Œ!         \n");
     printf("=======================================\n");
 
     return 0;
