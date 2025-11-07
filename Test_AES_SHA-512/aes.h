@@ -7,13 +7,13 @@
 extern "C" {
 #endif
 
-	// AES °ü·Ã ÇÔ¼ö ¼±¾ð
+	// AES ê´€ë ¨ í•¨ìˆ˜ ì„ ì–¸
 	CRYPTO_STATUS AES_set_key(AES_CTX* ctx, const uint8_t* key, int key_bits);
 	CRYPTO_STATUS AES_encrypt_block(const AES_CTX* ctx, const uint8_t in[AES_BLOCK_SIZE], uint8_t out[AES_BLOCK_SIZE]);
 	CRYPTO_STATUS AES_decrypt_block(const AES_CTX* ctx, const uint8_t in[AES_BLOCK_SIZE], uint8_t out[AES_BLOCK_SIZE]);
 	CRYPTO_STATUS AES_CTR_crypt(const AES_CTX* ctx, const uint8_t* in, size_t length, uint8_t* out, uint8_t nonce_counter[AES_BLOCK_SIZE]);
 
-	// Å×½ºÆ® ÇÔ¼ö (aes.c ³»ºÎ ±¸Çö)
+	// í…ŒìŠ¤íŠ¸ í•¨ìˆ˜ (aes.c ë‚´ë¶€ êµ¬í˜„)
 	int test_aes(void);
 
 #ifdef __cplusplus
