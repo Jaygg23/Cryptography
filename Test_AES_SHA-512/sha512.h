@@ -7,12 +7,12 @@
 extern "C" {
 #endif
 
-	// SHA512 °ü·Ã ÇÔ¼ö ¼±¾ð
+	// SHA512 ê´€ë ¨ í•¨ìˆ˜ ì„ ì–¸
 	CRYPTO_STATUS sha512_init(SHA512_CTX* ctx);
 	CRYPTO_STATUS sha512_update(SHA512_CTX* ctx, const uint8_t* data, size_t len);
 	CRYPTO_STATUS sha512_final(SHA512_CTX* ctx, uint8_t* hash);
 
-	// Å×½ºÆ® ÇÔ¼ö (sha512.c ³»ºÎ ±¸Çö)
+	// í…ŒìŠ¤íŠ¸ í•¨ìˆ˜ (sha512.c ë‚´ë¶€ êµ¬í˜„)
 	int test_sha512(void);
 
 #ifdef __cplusplus
