@@ -9,7 +9,7 @@
 #include "crypto_api.h"
 #include "sha512.h"
 
-#define SHA512_BLOCK_SIZE 128 // 128 ¹ÙÀÌÆ® = 1024ºñÆ®
+#define SHA512_BLOCK_SIZE 128 // 128 ë°”ì´íŠ¸ = 1024ë¹„íŠ¸
 #define SHA512_DIGEST_LENGTH 64
 
 static const uint64_t K[80] = {
@@ -48,7 +48,7 @@ static void transform(SHA512_CTX* ctx, const uint8_t data[SHA512_BLOCK_SIZE]) {
     register uint64_t a, b, c, d, e, f, g, h;
     register uint64_t t1, t2;
 
-    // --- 1. ÃÊ±â 16°³ ¿öµå (Big-endian ¡æ uint64_t º¯È¯)
+    // --- 1. ì´ˆê¸° 16ê°œ ì›Œë“œ (Big-endian â†’ uint64_t ë³€í™˜)
     const uint64_t* p = (const uint64_t*)data;
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
     for (int i = 0; i < 16; i++) {
@@ -66,14 +66,14 @@ static void transform(SHA512_CTX* ctx, const uint8_t data[SHA512_BLOCK_SIZE]) {
     memcpy(W, data, 128);
 #endif
 
-    // --- 2. ³ª¸ÓÁö 64°³ ¿öµå °è»ê (Message Schedule)
+    // --- 2. ë‚˜ë¨¸ì§€ 64ê°œ ì›Œë“œ ê³„ì‚° (Message Schedule)
     for (int i = 16; i < 80; i++) {
         uint64_t s0 = SIG0(W[i - 15]);
         uint64_t s1 = SIG1(W[i - 2]);
         W[i] = W[i - 16] + s0 + W[i - 7] + s1;
     }
 
-    // --- 3. ÃÊ±â ÇØ½Ã »óÅÂ ·Îµå
+    // --- 3. ì´ˆê¸° í•´ì‹œ ìƒíƒœ ë¡œë“œ
     a = ctx->state[0];
     b = ctx->state[1];
     c = ctx->state[2];
@@ -83,12 +83,12 @@ static void transform(SHA512_CTX* ctx, const uint8_t data[SHA512_BLOCK_SIZE]) {
     g = ctx->state[6];
     h = ctx->state[7];
 
-    // --- 4. ¸ŞÀÎ ¾ĞÃà ·çÇÁ (80¶ó¿îµå)
+    // --- 4. ë©”ì¸ ì••ì¶• ë£¨í”„ (80ë¼ìš´ë“œ)
     for (int i = 0; i < 80; i++) {
         t1 = h + EP1(e) + CH(e, f, g) + K[i] + W[i];
         t2 = EP0(a) + MAJ(a, b, c);
 
-        // ·¹Áö½ºÅÍ È¸Àü (ÀÇ¹Ì ±×´ë·Î À¯Áö)
+        // ë ˆì§€ìŠ¤í„° íšŒì „ (ì˜ë¯¸ ê·¸ëŒ€ë¡œ ìœ ì§€)
         h = g;
         g = f;
         f = e;
@@ -99,7 +99,7 @@ static void transform(SHA512_CTX* ctx, const uint8_t data[SHA512_BLOCK_SIZE]) {
         a = t1 + t2;
     }
 
-    // --- 5. Áß°£ ÇØ½Ã »óÅÂ ¾÷µ¥ÀÌÆ®
+    // --- 5. ì¤‘ê°„ í•´ì‹œ ìƒíƒœ ì—…ë°ì´íŠ¸
     ctx->state[0] += a;
     ctx->state[1] += b;
     ctx->state[2] += c;
@@ -110,7 +110,7 @@ static void transform(SHA512_CTX* ctx, const uint8_t data[SHA512_BLOCK_SIZE]) {
     ctx->state[7] += h;
 }
 
-CRYPTO_STATUS sha512_init(SHA512_CTX* ctx) { // ÃÊ±â ÇØ½Ã°ª H(0) ¼³Á¤
+CRYPTO_STATUS sha512_init(SHA512_CTX* ctx) { // ì´ˆê¸° í•´ì‹œê°’ H(0) ì„¤ì •
     ctx->state[0] = 0x6a09e667f3bcc908; ctx->state[1] = 0xbb67ae8584caa73b;
     ctx->state[2] = 0x3c6ef372fe94f82b; ctx->state[3] = 0xa54ff53a5f1d36f1;
     ctx->state[4] = 0x510e527fade682d1; ctx->state[5] = 0x9b05688c2b3e6c1f;
@@ -128,7 +128,7 @@ static void add_bitlen(SHA512_CTX* ctx, size_t len) {
 CRYPTO_STATUS sha512_update(SHA512_CTX* ctx, const uint8_t* data, size_t len) {
     size_t i = 0;
 
-    // ³²Àº µ¥ÀÌÅÍ°¡ ¹öÆÛ¿¡ ÀÌ¹Ì ÀÏºÎ ÀÖ´Â °æ¿ì ¸ÕÀú Ã¤¿ò
+    // ë‚¨ì€ ë°ì´í„°ê°€ ë²„í¼ì— ì´ë¯¸ ì¼ë¶€ ìˆëŠ” ê²½ìš° ë¨¼ì € ì±„ì›€
     if (ctx->datalen > 0) {
         size_t fill = SHA512_BLOCK_SIZE - ctx->datalen;
         if (len < fill) {
@@ -138,7 +138,7 @@ CRYPTO_STATUS sha512_update(SHA512_CTX* ctx, const uint8_t* data, size_t len) {
         }
         memcpy(ctx->buffer + ctx->datalen, data, fill);
 
-        // ¹öÆÛ°¡ SHA512_BLOCK_SIZE(128 ¹ÙÀÌÆ® = 1024ºñÆ®)¸¸Å­ Â÷¸é transform()À» È£ÃâÇØ ÇÑ ºí·ÏÀ» Ã³¸®
+        // ë²„í¼ê°€ SHA512_BLOCK_SIZE(128 ë°”ì´íŠ¸ = 1024ë¹„íŠ¸)ë§Œí¼ ì°¨ë©´ transform()ì„ í˜¸ì¶œí•´ í•œ ë¸”ë¡ì„ ì²˜ë¦¬
         transform(ctx, ctx->buffer);
         add_bitlen(ctx, SHA512_BLOCK_SIZE);
         data += fill;
@@ -146,7 +146,7 @@ CRYPTO_STATUS sha512_update(SHA512_CTX* ctx, const uint8_t* data, size_t len) {
         ctx->datalen = 0;
     }
 
-    // ÀÌÁ¦ ³²Àº ÀÔ·Â µ¥ÀÌÅÍ¸¦ 128¹ÙÀÌÆ®(=SHA512_BLOCK_SIZE) ´ÜÀ§·Î Ã³¸®
+    // ì´ì œ ë‚¨ì€ ì…ë ¥ ë°ì´í„°ë¥¼ 128ë°”ì´íŠ¸(=SHA512_BLOCK_SIZE) ë‹¨ìœ„ë¡œ ì²˜ë¦¬
     while (len >= SHA512_BLOCK_SIZE) {
         transform(ctx, data);
         add_bitlen(ctx, SHA512_BLOCK_SIZE);
@@ -154,7 +154,7 @@ CRYPTO_STATUS sha512_update(SHA512_CTX* ctx, const uint8_t* data, size_t len) {
         len -= SHA512_BLOCK_SIZE;
     }
 
-    // ¸¶Áö¸·À¸·Î ³²Àº (<128¹ÙÀÌÆ®) ºÎºĞÀ» ¹öÆÛ¿¡ º¹»ç
+    // ë§ˆì§€ë§‰ìœ¼ë¡œ ë‚¨ì€ (<128ë°”ì´íŠ¸) ë¶€ë¶„ì„ ë²„í¼ì— ë³µì‚¬
     if (len > 0) {
         memcpy(ctx->buffer, data, len);
         ctx->datalen = len;
@@ -163,38 +163,38 @@ CRYPTO_STATUS sha512_update(SHA512_CTX* ctx, const uint8_t* data, size_t len) {
 }
 
 CRYPTO_STATUS sha512_final(SHA512_CTX* ctx, uint8_t* hash) {
-    // i = ÇöÀç ¹öÆÛ¿¡ ³²¾Æ ÀÖ´Â µ¥ÀÌÅÍ ¹ÙÀÌÆ® ¼ö
+    // i = í˜„ì¬ ë²„í¼ì— ë‚¨ì•„ ìˆëŠ” ë°ì´í„° ë°”ì´íŠ¸ ìˆ˜
     size_t i = ctx->datalen;
 
-    // ³²Àº ¸Ş½ÃÁö ¹ÙÀÌÆ® ¼ö¸¦ ºñÆ® ±æÀÌ¿¡ ´õÇÔ (ÆĞµù ¹ÙÀÌÆ®´Â Æ÷ÇÔÇÏÁö ¾ÊÀ½)
+    // ë‚¨ì€ ë©”ì‹œì§€ ë°”ì´íŠ¸ ìˆ˜ë¥¼ ë¹„íŠ¸ ê¸¸ì´ì— ë”í•¨ (íŒ¨ë”© ë°”ì´íŠ¸ëŠ” í¬í•¨í•˜ì§€ ì•ŠìŒ)
     if (i > 0) add_bitlen(ctx, i);
 
-    // ¸Ş½ÃÁö ³¡¿¡ '1' ºñÆ®¸¦ Ãß°¡ (0x80)ÇÏ°í ÇÊ¿äÇÑ ¸¸Å­ 0À¸·Î ÆĞµùÇÒ ÁØºñ
+    // ë©”ì‹œì§€ ëì— '1' ë¹„íŠ¸ë¥¼ ì¶”ê°€ (0x80)í•˜ê³  í•„ìš”í•œ ë§Œí¼ 0ìœ¼ë¡œ íŒ¨ë”©í•  ì¤€ë¹„
     ctx->buffer[i++] = 0x80;
 
-    // ³²Àº °ø°£ÀÌ 16¹ÙÀÌÆ®(±æÀÌ ÇÊµå)º¸´Ù ÀûÀ¸¸é, ÇöÀç ºí·ÏÀ» 0À¸·Î Ã¤¿ö¼­ Ã³¸®ÇÏ°í »õ ºí·Ï¿¡¼­ ÀÌ¾î¼­ ÀÛ¾÷
+    // ë‚¨ì€ ê³µê°„ì´ 16ë°”ì´íŠ¸(ê¸¸ì´ í•„ë“œ)ë³´ë‹¤ ì ìœ¼ë©´, í˜„ì¬ ë¸”ë¡ì„ 0ìœ¼ë¡œ ì±„ì›Œì„œ ì²˜ë¦¬í•˜ê³  ìƒˆ ë¸”ë¡ì—ì„œ ì´ì–´ì„œ ì‘ì—…
     if (i > 112) {
-        // ³²Àº ºÎºĞÀ» 0À¸·Î ÆĞµù
+        // ë‚¨ì€ ë¶€ë¶„ì„ 0ìœ¼ë¡œ íŒ¨ë”©
         if (i < SHA512_BLOCK_SIZE) memset(ctx->buffer + i, 0, SHA512_BLOCK_SIZE - i);
         transform(ctx, ctx->buffer);
-        // »õ ºí·Ï ½ÃÀÛ
+        // ìƒˆ ë¸”ë¡ ì‹œì‘
         i = 0;
     }
 
-    // ºí·ÏÀÇ 112¹ÙÀÌÆ®(=128-16) ÁöÁ¡±îÁö 0À¸·Î ÆĞµù
+    // ë¸”ë¡ì˜ 112ë°”ì´íŠ¸(=128-16) ì§€ì ê¹Œì§€ 0ìœ¼ë¡œ íŒ¨ë”©
     if (i < 112) memset(ctx->buffer + i, 0, 112 - i);
 
-    // ¸¶Áö¸· 16¹ÙÀÌÆ®(128ºñÆ®)¿¡ ¸Ş½ÃÁö ÀüÃ¼ ±æÀÌ¸¦ big-endianÀ¸·Î ±â·Ï
-    // bitlen_high¿Í bitlen_low´Â °¢°¢ 64ºñÆ®ÀÌ¸ç, »óÀ§ 64ºñÆ®°¡ ¸ÕÀú ¿È
+    // ë§ˆì§€ë§‰ 16ë°”ì´íŠ¸(128ë¹„íŠ¸)ì— ë©”ì‹œì§€ ì „ì²´ ê¸¸ì´ë¥¼ big-endianìœ¼ë¡œ ê¸°ë¡
+    // bitlen_highì™€ bitlen_lowëŠ” ê°ê° 64ë¹„íŠ¸ì´ë©°, ìƒìœ„ 64ë¹„íŠ¸ê°€ ë¨¼ì € ì˜´
     for (int j = 0; j < 8; ++j) {
         ctx->buffer[112 + j] = (uint8_t)(ctx->bitlen_high >> (56 - 8 * j));
         ctx->buffer[120 + j] = (uint8_t)(ctx->bitlen_low >> (56 - 8 * j));
     }
 
-    // ¸¶Áö¸· ºí·ÏÀ» Ã³¸®
+    // ë§ˆì§€ë§‰ ë¸”ë¡ì„ ì²˜ë¦¬
     transform(ctx, ctx->buffer);
 
-    // ³»ºÎ »óÅÂ(state[8])¸¦ big-endian ¹ÙÀÌÆ® ¹è¿­(64¹ÙÀÌÆ®)·Î º¯È¯ÇÏ¿© ÇØ½Ã °á°ú¿¡ ÀúÀå
+    // ë‚´ë¶€ ìƒíƒœ(state[8])ë¥¼ big-endian ë°”ì´íŠ¸ ë°°ì—´(64ë°”ì´íŠ¸)ë¡œ ë³€í™˜í•˜ì—¬ í•´ì‹œ ê²°ê³¼ì— ì €ì¥
     for (int j = 0; j < 8; ++j) {
         uint64_t v = ctx->state[j];
         hash[j * 8 + 0] = (uint8_t)(v >> 56);
@@ -207,7 +207,7 @@ CRYPTO_STATUS sha512_final(SHA512_CTX* ctx, uint8_t* hash) {
         hash[j * 8 + 7] = (uint8_t)(v >> 0);
     }
 
-    // ¹Î°¨ÇÑ ³»ºÎ µ¥ÀÌÅÍ(¹öÆÛ, »óÅÂ µî)¸¦ 0À¸·Î ÃÊ±âÈ­ÇÏ¿© º¸¾È»ó ÀÜ·ù µ¥ÀÌÅÍ ¹æÁö
+    // ë¯¼ê°í•œ ë‚´ë¶€ ë°ì´í„°(ë²„í¼, ìƒíƒœ ë“±)ë¥¼ 0ìœ¼ë¡œ ì´ˆê¸°í™”í•˜ì—¬ ë³´ì•ˆìƒ ì”ë¥˜ ë°ì´í„° ë°©ì§€
     memset(ctx->buffer, 0, sizeof(ctx->buffer));
     ctx->datalen = 0;
     ctx->bitlen_low = ctx->bitlen_high = 0;
@@ -216,7 +216,7 @@ CRYPTO_STATUS sha512_final(SHA512_CTX* ctx, uint8_t* hash) {
     return CRYPTO_SUCCESS;
 }
 
-// 16Áø ¹®ÀÚ¿­ ¡æ ¹ÙÀÌÆ® ¹è¿­
+// 16ì§„ ë¬¸ìì—´ â†’ ë°”ì´íŠ¸ ë°°ì—´
 static int hex_to_bytes(const char* hex, unsigned char* out) {
     int len = strlen(hex);
     int i;
@@ -243,12 +243,12 @@ double now_sec(void) {
 }
 #endif
 
-// ÆÄÀÏ¿¡¼­ Å×½ºÆ® º¤ÅÍ¸¦ ÀĞ°í ½ÇÇà
-// ½ÇÁ¦ »ç¿ëÇÒ ¶§´Â ÀÔ·Â¿¡ ´ëÇÑ ÇØ½ÃÀ» Ãâ·ÂÇÏµµ·Ï ¼öÁ¤
+// íŒŒì¼ì—ì„œ í…ŒìŠ¤íŠ¸ ë²¡í„°ë¥¼ ì½ê³  ì‹¤í–‰
+// ì‹¤ì œ ì‚¬ìš©í•  ë•ŒëŠ” ì…ë ¥ì— ëŒ€í•œ í•´ì‹œì„ ì¶œë ¥í•˜ë„ë¡ ìˆ˜ì •
 int test_sha512(void) {
     FILE* fp = fopen("SHA512ShortMsg.rsp", "r");
     if (!fp) {
-        perror("ÆÄÀÏ ¿­±â ½ÇÆĞ");
+        perror("íŒŒì¼ ì—´ê¸° ì‹¤íŒ¨");
         return 1;
     }
 
@@ -261,7 +261,7 @@ int test_sha512(void) {
     char digest_hex[129];
     int test_count = 0, pass_count = 0;
 
-    double start = now_sec(); // ½Ã°£ ÃøÁ¤ ½ÃÀÛ
+    double start = now_sec(); // ì‹œê°„ ì¸¡ì • ì‹œì‘
 
     while (fgets(line, sizeof(line), fp)) {
         if (strncmp(line, "Len = ", 6) == 0) {
@@ -273,42 +273,42 @@ int test_sha512(void) {
         else if (strncmp(line, "MD = ", 5) == 0) {
             sscanf(line + 5, "%s", md_ref);
 
-            int msg_len = len / 8; // LenÀº ºñÆ® ´ÜÀ§
+            int msg_len = len / 8; // Lenì€ ë¹„íŠ¸ ë‹¨ìœ„
             hex_to_bytes(msg_hex, msg_bytes);
 
-            // ÇØ½Ã °è»ê
+            // í•´ì‹œ ê³„ì‚°
             SHA512_CTX ctx;
             sha512_init(&ctx);
             sha512_update(&ctx, msg_bytes, msg_len);
             sha512_final(&ctx, digest);
 
-            // °á°ú¸¦ 16Áø ¹®ÀÚ¿­·Î º¯È¯
+            // ê²°ê³¼ë¥¼ 16ì§„ ë¬¸ìì—´ë¡œ ë³€í™˜
             for (int i = 0; i < 64; i++)
                 sprintf(digest_hex + i * 2, "%02x", digest[i]);
             digest_hex[128] = '\0';
 
-            // ºñ±³
+            // ë¹„êµ
             test_count++;
             if (strcmp(digest_hex, md_ref) == 0) {
                 pass_count++;
             }
             else {
-                printf("Test %d ½ÇÆĞ\n", test_count);
-                printf("Len=%d\nMsg=%s\n¿¹»ó=%s\n°á°ú=%s\n\n",
+                printf("Test %d ì‹¤íŒ¨\n", test_count);
+                printf("Len=%d\nMsg=%s\nì˜ˆìƒ=%s\nê²°ê³¼=%s\n\n",
                     len, msg_hex, md_ref, digest_hex);
             }
         }
     }
 
-    double end = now_sec();  // ½Ã°£ ÃøÁ¤ Á¾·á
+    double end = now_sec();  // ì‹œê°„ ì¸¡ì • ì¢…ë£Œ
     double elapsed = end - start;
 
     fclose(fp);
-    printf("Å×½ºÆ® ¿Ï·á: %d Áß %d Åë°ú \n", test_count, pass_count);
-    printf("ÃÑ ½ÇÇà ½Ã°£: %.6fÃÊ (%.3f ms)\n", elapsed, elapsed * 1000.0);
+    printf("í…ŒìŠ¤íŠ¸ ì™„ë£Œ: %d ì¤‘ %d í†µê³¼ \n", test_count, pass_count);
+    printf("ì´ ì‹¤í–‰ ì‹œê°„: %.6fì´ˆ (%.3f ms)\n", elapsed, elapsed * 1000.0);
 
     if (test_count == pass_count)
-        printf("¸ğµç SHA-512 Å×½ºÆ® º¤ÅÍ Åë°ú!\n");
+        printf("ëª¨ë“  SHA-512 í…ŒìŠ¤íŠ¸ ë²¡í„° í†µê³¼!\n");
 
     return 0;
 }
