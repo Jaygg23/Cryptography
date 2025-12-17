@@ -46,7 +46,7 @@ void polyvecl_uniform_gamma1(polyvecl *v, const uint8_t seed[CRHBYTES], uint16_t
   unsigned int i;
 
   for(i = 0; i < L; ++i)
-    poly_uniform_gamma1(&v->vec[i], seed, L*nonce + i);
+    poly_uniform_gamma1(&v->vec[i], seed, L*nonce + i); // 길이 L짜리 다항식 벡터의 각 성분 다항식의 계수들을 [-gamma1, gamma1] 범위에서 균등하게 뽑음
 }
 
 void polyvecl_reduce(polyvecl *v) {
@@ -251,7 +251,7 @@ void polyveck_shiftl(polyveck *v) {
 void polyveck_ntt(polyveck *v) {
   unsigned int i;
 
-  for(i = 0; i < K; ++i)
+  for(i = 0; i < K; ++i) // K개의 다항식에 대해 ntt 변환
     poly_ntt(&v->vec[i]);
 }
 
@@ -342,6 +342,9 @@ void polyveck_decompose(polyveck *v1, polyveck *v0, const polyveck *v) {
 
   for(i = 0; i < K; ++i)
     poly_decompose(&v1->vec[i], &v0->vec[i], &v->vec[i]);
+  // 계수 다항식 집합 벡터 v를 상/하위 비트로 나눔
+  // v1: 서명에 저장됨
+  // v2: hint 및 challenge consistency 검증에 사용됨
 }
 
 /*************************************************
@@ -385,6 +388,7 @@ void polyveck_use_hint(polyveck *w, const polyveck *u, const polyveck *h) {
 }
 
 void polyveck_pack_w1(uint8_t r[K*POLYW1_PACKEDBYTES], const polyveck *w1) {
+  // K개의 다항식(w1->vec[i])을 각각 압축해서 바이트 배열에 순서대로 저장하는 함수
   unsigned int i;
 
   for(i = 0; i < K; ++i)

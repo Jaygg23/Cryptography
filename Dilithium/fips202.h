@@ -12,9 +12,9 @@
 #define FIPS202_NAMESPACE(s) pqcrystals_dilithium_fips202_ref_##s
 
 typedef struct {
-  uint64_t s[25];
-  unsigned int pos;
-} keccak_state;
+  uint64_t s[25]; // Keccak-f[1600] 내부 상태 1600비트를 64비트 * 25개로 저장한 것
+  unsigned int pos; // rate 버퍼에서의 현재 위치(바이트 오프셋)
+} keccak_state; // Keccak 해시의 내부 상태를 담는 구조체 타입
 
 #define KeccakF_RoundConstants FIPS202_NAMESPACE(KeccakF_RoundConstants)
 extern const uint64_t KeccakF_RoundConstants[];

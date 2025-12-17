@@ -49,16 +49,14 @@ static const int32_t zetas[N] = {
 void ntt(int32_t a[N]) { // 실제 NTT 알고리즘(버터플라이 연산을 계층적으로 수행)
   unsigned int len, start, j, k;
   int32_t zeta, t;
+  // zeta: 그 순간 버터플라이에 필요한 twiddle factor(원시근의 거듭제곱)
 
   k = 0;
-  for(len = 128; len > 0; len >>= 1) { // len이 128->64->32->...로 변하면서 총 log2(N) 단계
+  for(len = 128; len > 0; len >>= 1) { // len이 128->64->32->...로 변하면서 총 log_2(N) 단계
     for(start = 0; start < N; start = j + len) { // 각 단계에서 start와 j 인덱스는 블록을 나누어 버터플라이 연산 수행
       zeta = zetas[++k]; // zeta 배열은 미리 계산된 twiddle factors(primitive roots)를 저장한 테이블로, 각 블록마다 다른 zeta를 사용
       for(j = start; j < start + len; ++j) {
         t = montgomery_reduce((int64_t)zeta * a[j + len]);
-        // zeta: 그 순간 버터플라이에 필요한 twiddle factor(원시근의 거듭제곱)
-        // a[j+len]: 현재 계수(정수)
-        // (int64_t)zeta * a[j+len] 은 64-bit 곱셈 결과를 만듦 -> montgomery_reduce()는 이 64-bit 값을 모듈러 Q로 빠르게 환산
         a[j + len] = a[j] - t; // a[j + len] <- u - v (버터플라이의 뺄셈 부분)
         a[j] = a[j] + t; // a[j] <- u + v (버터플라이의 덧셈 부분)
       }

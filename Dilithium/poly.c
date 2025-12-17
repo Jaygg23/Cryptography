@@ -25,7 +25,7 @@ extern uint64_t *tred, *tadd, *tmul, *tround, *tsample, *tpack;
 *
 * Arguments:   - poly *a: pointer to input/output polynomial
 **************************************************/
-void poly_reduce(poly *a) {
+void poly_reduce(poly *a) { // 계산 중 오버플로우 안 생기고 정수 범위 유지되도록 값만 정리하는 함수
   unsigned int i;
   DBENCH_START();
 
@@ -470,19 +470,18 @@ void poly_uniform_eta(poly *a,
 *              - const uint8_t seed[]: byte array with seed of length CRHBYTES
 *              - uint16_t nonce: 16-bit nonce
 **************************************************/
-#define POLY_UNIFORM_GAMMA1_NBLOCKS ((POLYZ_PACKEDBYTES + STREAM256_BLOCKBYTES - 1)/STREAM256_BLOCKBYTES)
+#define POLY_UNIFORM_GAMMA1_NBLOCKS ((POLYZ_PACKEDBYTES + STREAM256_BLOCKBYTES - 1)/STREAM256_BLOCKBYTES) // ceil 연산을 수식으로 나타냄
 void poly_uniform_gamma1(poly *a,
                          const uint8_t seed[CRHBYTES],
                          uint16_t nonce)
 {
-  uint8_t buf[POLY_UNIFORM_GAMMA1_NBLOCKS*STREAM256_BLOCKBYTES];
+  uint8_t buf[POLY_UNIFORM_GAMMA1_NBLOCKS*STREAM256_BLOCKBYTES]; // SHAKE256 스트림에서 뽑아온 바이트를 임시로 담는 버퍼
   stream256_state state;
 
   stream256_init(&state, seed, nonce);
   stream256_squeezeblocks(buf, POLY_UNIFORM_GAMMA1_NBLOCKS, &state);
   polyz_unpack(a, buf);
 }
-
 /*************************************************
 * Name:        challenge
 *
@@ -502,7 +501,7 @@ void poly_challenge(poly *c, const uint8_t seed[CTILDEBYTES]) {
   shake256_init(&state);
   shake256_absorb(&state, seed, CTILDEBYTES);
   shake256_finalize(&state);
-  shake256_squeezeblocks(buf, 1, &state);
+  shake256_squeezeblocks(buf, 1, &state); // SHAKE256_RATE(=136 바이트)만큼 한 블록 뽑아서 buf에 저장
 
   signs = 0;
   for(i = 0; i < 8; ++i)
@@ -510,8 +509,8 @@ void poly_challenge(poly *c, const uint8_t seed[CTILDEBYTES]) {
   pos = 8;
 
   for(i = 0; i < N; ++i)
-    c->coeffs[i] = 0;
-  for(i = N-TAU; i < N; ++i) {
+    c->coeffs[i] = 0; // 처음에는 모든 계수 0
+  for(i = N-TAU; i < N; ++i) { // tau개 위치를 랜덤하게 뽑아서 +-1 대입
     do {
       if(pos >= SHAKE256_RATE) {
         shake256_squeezeblocks(buf, 1, &state);
@@ -896,18 +895,20 @@ void polyw1_pack(uint8_t *r, const poly *a) {
   unsigned int i;
   DBENCH_START();
 
-#if GAMMA2 == (Q-1)/88
+#if GAMMA2 == (Q-1)/88 // w1 계수는 0~43 정도(6비트)에 들어옴
   for(i = 0; i < N/4; ++i) {
-    r[3*i+0]  = a->coeffs[4*i+0];
-    r[3*i+0] |= a->coeffs[4*i+1] << 6;
-    r[3*i+1]  = a->coeffs[4*i+1] >> 2;
-    r[3*i+1] |= a->coeffs[4*i+2] << 4;
-    r[3*i+2]  = a->coeffs[4*i+2] >> 4;
-    r[3*i+2] |= a->coeffs[4*i+3] << 2;
-  }
-#elif GAMMA2 == (Q-1)/32
+    r[3*i+0]  = a->coeffs[4*i+0]; // [0:5] = c0의 6비트
+    r[3*i+0] |= a->coeffs[4*i+1] << 6; // c1의 하위 2비트가 r0의 상위 2비트로
+    r[3*i+1]  = a->coeffs[4*i+1] >> 2; // c1의 상위 4비트가 r1의 하위 4비트
+    r[3*i+1] |= a->coeffs[4*i+2] << 4; // c2의 하위 4비트가 r1의 상위 4비트
+    r[3*i+2]  = a->coeffs[4*i+2] >> 4; // c2의 상위 2비트가 r2의 하위 2비트
+    r[3*i+2] |= a->coeffs[4*i+3] << 2; // c3 전체 6비트가 r2의 상위 6비트
+  } // -> 3바이트로 채움
+#elif GAMMA2 == (Q-1)/32 // w1 계수는 0~15(4비트)에 들어옴
   for(i = 0; i < N/2; ++i)
     r[i] = a->coeffs[2*i+0] | (a->coeffs[2*i+1] << 4);
+  // a->coeffs[2*i]: 첫 번째 계수(하위 4비트), a->coeffs[2*i+1]: 두 번째 계수(하위 4비트)
+  // r[i] = [ coeff1 (상위 4비트) | coeff0 (하위 4비트) ]
 #endif
 
   DBENCH_STOP(*tpack);
